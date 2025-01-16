@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>게시판</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+  <!-- 상단 메뉴 -->
+  <div class="d-flex justify-content-between mb-3">
+    <div>
+      <a th:href="@{/}" class="btn btn-secondary">홈으로</a>
+      <a th:href="@{/logout}" class="btn btn-danger">로그아웃</a>
+    </div>
+  </div>
+
+  <h1 class="text-center mb-4">게시판</h1>
+
+  <!-- 에러 메시지 -->
+  <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
+
+  <!-- 새 게시글 작성 버튼 -->
+  <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#boardModal" onclick="showCreateModal()">
+    새 게시글 작성
+  </button>
+
+  <!-- 게시글 목록 -->
+  <table class="table table-striped">
+    <thead>
+    <tr>
+      <th>번호</th>
+      <th>제목</th>
+      <th>작성자</th>
+      <th>작성일</th>
+      <th>관리</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="board : ${boards}">
+      <td th:text="${board.id}"></td>
+      <td><a th:href="@{/board/detail/{id}(id=${board.id})}" th:text="${board.title}"></a></td>
+      <td th:text="${board.author}"></td>
+      <td th:text="${#temporals.format(board.createdDate, 'yyyy-MM-dd HH:mm')}"></td>
+      <td>
+        <!-- 삭제 버튼 -->
+        <form th:action="@{/board/delete/{id}(id=${board.id})}" method="post" style="display:inline;"
+              onsubmit="return confirmDelete()">
+          <button class="btn btn-sm btn-danger" type="submit">삭제</button>
+        </form>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 게시글 작성/수정 모달 -->
+<div class="modal fade" id="boardModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitle">새 게시글 작성</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="boardForm" method="post" action="/board">
+        <div class="modal-body">
+          <input type="hidden" id="boardId" name="id">
+          <div class="mb-3">
+            <label for="title" class="form-label">제목</label>
+            <input type="text" class="form-control" id="title" name="title" required>
+          </div>
+          <div class="mb-3">
+            <label for="content" class="form-label">내용</label>
+            <textarea class="form-control" id="content" name="content" rows="5" required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+          <button type="submit" class="btn btn-primary">저장</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+  function showCreateModal() {
+    document.getElementById("boardForm").action = "/board";
+    document.getElementById("boardId").value = "";
+    document.getElementById("title").value = "";
+    document.getElementById("content").value = "";
+    document.getElementById("modalTitle").innerText = "새 게시글 작성";
+  }
+
+  function confirmDelete() {
+    return confirm("정말 삭제하시겠습니까?");
+  }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
